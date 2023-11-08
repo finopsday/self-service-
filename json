@@ -1,0 +1,4 @@
+{
+  "httpMethod": "POST",
+  "body": "{\"tag\": \"produto:finops\", \"account\": \"ACCOUNTID\"}"
+}

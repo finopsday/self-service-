@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Enviar JSON via POST</title>
+    <style>
+        body {
+            background-image: url('porquinho.jpeg');
+            background-size: 100% auto;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        #myForm {
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10%;
+            position: relative;
+            text-align: left;
+            margin: 5% auto 0 auto;
+        }
+
+        .form-group {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-group label {
+            width: 30%;
+        }
+
+        .form-group input {
+            width: 70%;
+        }
+
+        #loadingIndicator {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        #completionMessage {
+            text-align: center;
+            margin-top: 20px;
+            color: white;
+            display: none;
+        }
+
+        #submitButton {
+            width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <form id="myForm">
+        <div class="form-group">
+            <label for="chave">Chave:</label>
+            <input type="text" id="chave" name="chave">
+        </div>
+        <div class="form-group">
+            <label for="valor">Valor:</label>
+            <input type="text" id="valor" name="valor">
+        </div>
+        <div class="form-group">
+            <label for="account">Conta:</label>
+            <input type="text" id="account" name="account">
+        </div>
+        <div id="loadingIndicator">Enviando...</div>
+        <input type="submit" value="Enviar" id="submitButton">
+    </form>
+    <div id="completionMessage">Atividade concluida!</div>
+
+    <script>
+        var form = document.getElementById("myForm");
+        var submitButton = document.getElementById("submitButton");
+        var loadingIndicator = document.getElementById("loadingIndicator");
+        var completionMessage = document.getElementById("completionMessage");
+
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            // Desabilite o botão de envio e mostre o indicador de carregamento
+            submitButton.disabled = true;
+            loadingIndicator.style.display = "block";
+
+            // Obtenha os valores da chave, valor e conta do formulário
+            var chave = document.getElementById("chave").value;
+            var valor = document.getElementById("valor").value;
+            var account = document.getElementById("account").value;
+
+            // Construa o objeto JSON no formato desejado
+            var jsonData = {
+                httpMethod: 'POST',
+                body: JSON.stringify({ tag: chave + ':' + valor, account: account })
+            };
+
+            // Simula um atraso para mostrar a mensagem de conclusão
+            setTimeout(function () {
+                // Oculte o indicador de carregamento
+                loadingIndicator.style.display = "none";
+
+                // Exibe a mensagem de conclusão
+                completionMessage.style.display = "block";
+
+                // Envie os dados JSON para o AWS API Gateway (substitua pela sua URL)
+                fetch('https://.execute-api.us-east-1.amazonaws.com/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(jsonData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Aqui você pode lidar com a resposta do servidor, se necessário
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.error('Erro ao enviar os dados: ' + error);
+                    submitButton.disabled = false; // Em caso de erro, reabilite o botão de envio
+                });
+
+                // Limpa a tela após 5 segundos
+                setTimeout(function () {
+                    completionMessage.style.display = "none";
+                    document.getElementById("chave").value = "";
+                    document.getElementById("valor").value = "";
+                    document.getElementById("account").value = "";
+                    submitButton.disabled = false;
+                }, 5000);
+            }, 3000); // Tempo de espera de 3 segundos (ajuste conforme necessário)
+        });
+    </script>
+</body>
+</html>

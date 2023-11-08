@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  StartStopPolicy:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      ManagedPolicyName: "StartStopPolicy"
+      Description: "Política para Start/Stop EC2"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action:
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+            Resource: "arn:aws:logs:*:*:*"
+          - Effect: "Allow"
+            Action:
+              - "ec2:DescribeInstances"
+              - "ec2:DescribeRegions"
+              - "ec2:StartInstances"
+              - "ec2:StopInstances"
+              - "ec2:CreateTags"
+              - "sts:AssumeRole*"
+              - "sts:Decode*"
+              - "sts:Set*"
+              - "sts:SetSessionPolicy"              
+              - "apigateway:POST"
+              - "apigateway:GET"
+              - "amplify:*"
+              - "ses:SendEmail"
+              
+            Resource: "*"
+
+  StartStopRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: "roleStartStop"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              AWS: "arn:aws:iam::ACCOUNTID:root"          
+              Service:
+                - "lambda.amazonaws.com"
+                - "ec2.amazonaws.com"                
+                - "amplify.amazonaws.com"
+                - "ses.amazonaws.com"
+                - "apigateway.amazonaws.com"                   
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - !Ref StartStopPolicy
